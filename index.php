@@ -1,10 +1,10 @@
 <?php
 // Role Selection Page
 $roles = [
-    ['name' => 'Pemilik', 'icon' => '👑', 'desc' => 'Akses penuh ke semua fitur'],
-    ['name' => 'Admin', 'icon' => '🛡️', 'desc' => 'Kelola data & laporan'],
-    ['name' => 'Kasir', 'icon' => '🧾', 'desc' => 'Transaksi & pembayaran'],
-    ['name' => 'Pramuniaga', 'icon' => '🛍️', 'desc' => 'Pelayanan pelanggan'],
+    ['name' => 'Pemilik', 'icon' => '', 'desc' => 'Akses penuh ke semua fitur'],
+    ['name' => 'Admin', 'icon' => '', 'desc' => 'Kelola data & laporan'],
+    ['name' => 'Kasir', 'icon' => '', 'desc' => 'Transaksi & pembayaran'],
+    ['name' => 'Pramuniaga', 'icon' => '', 'desc' => 'Pelayanan pelanggan'],
 ];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['role'])) {
