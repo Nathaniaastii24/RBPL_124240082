@@ -1,4 +1,11 @@
 <?php
+session_start();
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'Kasir') {
+    header('Location: index.php'); exit;
+}
+?>
+
+<?php
 // kasirdashboard.php
 $namaAkun = "Nama Akun"; // nanti bisa diganti dari session login
 ?>

@@ -1,5 +1,12 @@
 <?php
 session_start();
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'Pramuniaga') {
+    header('Location: index.php'); exit;
+}
+?>
+
+<?php
+session_start();
 
 // Simulasi nama akun (nanti bisa ambil dari database / session login)
 $namaAkun = "Pramuniaga";

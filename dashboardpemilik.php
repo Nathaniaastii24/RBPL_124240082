@@ -1,4 +1,11 @@
 <?php
+session_start();
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'Pemilik') {
+    header('Location: index.php'); exit;
+}
+?>
+
+<?php
 // contoh data dinamis
 $namaAkun = "Nama Akun";
 $penjualanHariIni = 450000;
