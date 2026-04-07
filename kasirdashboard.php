@@ -31,15 +31,54 @@ body {
     color: #1A1A1A;
 }
 
-/* ================= SIDEBAR ================= */
+    /* ===== SIDEBAR ===== */
 .sidebar {
-    width: 260px;
-    background-color: #FFF8E1;
-    padding: 30px 20px;
-    border-radius: 0 25px 25px 0;
+    width: 240px;
+    height: 100vh;
+    background: #FFF8E1;
+    padding: 20px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+}
+
+.logo {
+    font-size: 22px;
+    font-weight: bold;
+    color: #1A1A1A;
+    margin-bottom: 20px;
+}
+
+.profile {
+    display: flex;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.profile-circle {
+    width: 55px;
+    height: 55px;
+    border-radius: 50%;
+    background: #C8E6C9;
+    margin-right: 10px;
+}
+
+.menu a {
+    display: block;
+    padding: 12px;
+    margin: 5px 0;
+    text-decoration: none;
+    color: #4A4A4A;
+    border-radius: 8px;
+}
+
+.menu a:hover {
+    background: #C8E6C9;
+    color: #1A1A1A;
+}
+
+.logout {
+    margin-top: 20px;
 }
 
 .brand {
@@ -167,25 +206,33 @@ body {
     color: #9E9E9E;
     font-size: 16px;
 }
+
+.profile-img {
+    width: 55px;
+    height: 55px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #C8E6C9;
+}
 </style>
 </head>
 
 <body>
 
-<!-- SIDEBAR -->
+<!--SIDEBAR-->
 <div class="sidebar">
     <div>
-        <div class="brand">Warung<br>Mbak Eni</div>
+        <div class="logo">Warung Mbak Eni</div>
 
         <div class="profile">
-            <div class="avatar"></div>
-            <div><?php echo $namaAkun; ?></div>
-        </div>
+    <img src="asset/logohijau.png" class="profile-img">
+    <div>Kurnia Fika</div>
+</div>
 
         <div class="menu">
-            <a href="kasirdashboard.php" class="active">Dashboard</a>
+            <a href="kasirdashboard.php">Dashboard</a>
             <a href="kasirpenjualan.php">Penjualan</a>
-            <a href="tutupkasir.php">Tutup Kasir</a>
+            <a href="kasirtutup.php">Tutup Kasir</a>
         </div>
     </div>
 

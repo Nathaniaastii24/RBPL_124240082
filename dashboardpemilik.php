@@ -178,31 +178,41 @@ body {
   justify-content: center;
   color: var(--text-muted);
 }
+
+.profile-img {
+    width: 55px;
+    height: 55px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #C8E6C9;
+}
 </style>
 </head>
 
 <body>
 
-<!-- SIDEBAR -->
+<!--SIDEBAR-->
 <div class="sidebar">
-  <div>
-    <div class="logo">Warung Mbak Eni</div>
+    <div>
+        <div class="logo">Warung Mbak Eni</div>
 
-    <div class="profile">
-      <div class="avatar"></div>
-      <div><?= $namaAkun ?></div>
+        <div class="profile">
+    <img src="asset/logohijau.png" class="profile-img">
+    <div>Arsita Dewi</div>
+</div>
+
+        <div class="menu">
+            <a href="admindashboard.php">Dashboard</a>
+            <a href="#">Laporan</a>
+            <a href="#">Barang</a>
+            <a href="#">Penerimaan</a>
+            <a href="#">Supplier</a>
+        </div>
     </div>
 
-    <div class="menu">
-      <a class="active" href="#">Dashboard</a>
-      <a href="laporanpenjualan.php">Laporan</a>
-      <a href="#">Barang</a>
-      <a href="#">Penerimaan</a>
-      <a href="#">Supplier</a>
+    <div class="logout">
+        <a href="logout.php">Logout</a>
     </div>
-  </div>
-
-  <a class="logout" href="logout.php">Logout</a>
 </div>
 
 <!-- MAIN -->

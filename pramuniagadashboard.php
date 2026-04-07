@@ -27,47 +27,54 @@ $namaAkun = "Pramuniaga";
         }
 
         /* ===== SIDEBAR ===== */
-        .sidebar {
-            width: 250px;
-            height: 100vh;
-            background-color: #F7F3EE;
-            padding: 25px 20px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
+.sidebar {
+    width: 240px;
+    height: 100vh;
+    background: #FFF8E1;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
 
-        .sidebar h2 {
-            margin-bottom: 30px;
-        }
+.logo {
+    font-size: 22px;
+    font-weight: bold;
+    color: #1A1A1A;
+    margin-bottom: 20px;
+}
 
-        .profile {
-            margin-bottom: 30px;
-            color: #4A4A4A;
-        }
+.profile {
+    display: flex;
+    align-items: center;
+    margin-bottom: 25px;
+}
 
-        .menu a {
-            display: block;
-            padding: 10px;
-            margin-bottom: 10px;
-            text-decoration: none;
-            color: #4A4A4A;
-            border-radius: 8px;
-        }
+.profile-circle {
+    width: 55px;
+    height: 55px;
+    border-radius: 50%;
+    background: #C8E6C9;
+    margin-right: 10px;
+}
 
-        .menu a:hover,
-        .menu a.active {
-            background-color: #C8E6C9;
-            color: #2E7D32;
-            font-weight: bold;
-        }
+.menu a {
+    display: block;
+    padding: 12px;
+    margin: 5px 0;
+    text-decoration: none;
+    color: #4A4A4A;
+    border-radius: 8px;
+}
 
-        .logout {
-            text-decoration: none;
-            font-weight: bold;
-            color: #2E7D32;
-        }
+.menu a:hover {
+    background: #C8E6C9;
+    color: #1A1A1A;
+}
 
+.logout {
+    margin-top: 20px;
+}
         /* ===== MAIN CONTENT ===== */
         .main {
             flex: 1;
@@ -131,30 +138,37 @@ $namaAkun = "Pramuniaga";
             }
         }
 
+        .profile-img {
+    width: 55px;
+    height: 55px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #C8E6C9;
+}
     </style>
 </head>
 <body>
 
-    <!-- ===== SIDEBAR ===== -->
-    <div class="sidebar">
-        <div>
-            <h2>Warung<br>Mbak Eni</h2>
+<!--SIDEBAR-->
+<div class="sidebar">
+    <div>
+        <div class="logo">Warung Mbak Eni</div>
 
-            <div class="profile">
-                <strong>Nama Akun</strong><br>
-                <?= $namaAkun ?>
-            </div>
+        <div class="profile">
+    <img src="asset/logohijau.png" class="profile-img">
+    <div>Resti Putri</div>
+</div>
 
-            <div class="menu">
-                <a href="#" class="active">Dashboard</a>
-                <a href="#">Barang</a>
-            </div>
+        <div class="menu">
+            <a href="admindashboard.php">Dashboard</a>
+            <a href="#">Barang</a>
         </div>
+    </div>
 
-        <div class="logout">
+    <div class="logout">
         <a href="logout.php">Logout</a>
     </div>
-    </div>
+</div>
 
     <!-- ===== MAIN ===== -->
     <div class="main">

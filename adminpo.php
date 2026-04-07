@@ -110,6 +110,14 @@ body {display:flex; background:#F7F3EE; font-family:Segoe UI;}
 .add {background:#444; color:#fff;}
 .save {background:#2E7D32; color:#fff;}
 .kirim {background:orange;}
+
+.profile-img {
+    width: 55px;
+    height: 55px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #C8E6C9;
+}
 </style>
 </head>
 
@@ -121,13 +129,13 @@ body {display:flex; background:#F7F3EE; font-family:Segoe UI;}
         <div class="logo">Warung Mbak Eni</div>
 
         <div class="profile">
-            <div class="profile-circle"></div>
-            <div>Nama Akun</div>
-        </div>
+    <img src="asset/logohijau.png" class="profile-img">
+    <div>Vina Delvina</div>
+</div>
 
         <div class="menu">
             <a href="admindashboard.php">Dashboard</a>
-            <a href="#">Kelola Barang</a>
+            <a href="adminkelolabarang.php">Kelola Barang</a>
             <a href="adminpenerimaan.php">Input Penerimaan</a>
             <a href="adminpo.php">Purchase Order</a>
             <a href="#">Laporan</a>

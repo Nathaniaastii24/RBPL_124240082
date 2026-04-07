@@ -119,6 +119,14 @@ body {font-family: Segoe UI; background:#F7F3EE; display:flex;}
 .edit {background:orange; color:white;}
 input {padding:8px; margin:5px;}
 #formEdit {display:none; background:#fff; padding:15px; border:1px solid #ccc; margin-top:15px;}
+
+.profile-img {
+    width: 55px;
+    height: 55px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #C8E6C9;
+}
 </style>
 </head>
 
@@ -130,9 +138,9 @@ input {padding:8px; margin:5px;}
         <div class="logo">Warung Mbak Eni</div>
 
         <div class="profile">
-            <div class="profile-circle"></div>
-            <div>Nama Akun</div>
-        </div>
+    <img src="asset/logohijau.png" class="profile-img">
+    <div>Vina Delvina</div>
+</div>
 
         <div class="menu">
             <a href="admindashboard.php">Dashboard</a>

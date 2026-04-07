@@ -1,281 +1,276 @@
 <?php
-// kasirpenjualan.php
-$namaAkun = "Nama Akun"; // bisa diganti dari session login
+session_start();
+$conn = new mysqli("localhost", "root", "", "warung");
+
+// SIMPAN TRANSAKSI
+if (isset($_POST['bayar'])) {
+
+    $metode = $_POST['metode'];
+    $total  = $_POST['total'];
+
+    $conn->query("INSERT INTO penjualan (tanggal,total,metode)
+                  VALUES (NOW(),'$total','$metode')");
+
+    $id = $conn->insert_id;
+
+    foreach ($_POST['barang'] as $i => $barang_id) {
+        $jumlah = $_POST['jumlah'][$i];
+        $harga  = $_POST['harga'][$i];
+        $diskon = $_POST['diskon'][$i];
+        $subtotal = ($jumlah * $harga) - $diskon;
+
+        $conn->query("INSERT INTO detail_penjualan
+        (penjualan_id,barang_id,jumlah,harga,diskon,subtotal)
+        VALUES ('$id','$barang_id','$jumlah','$harga','$diskon','$subtotal')");
+    }
+
+    header("Location: kasirpenjualan.php?struk=" . $id);
+exit;
+}
+
+$barang = $conn->query("SELECT * FROM barang");
+
+$struk = null;
+$detail = [];
+
+if (isset($_GET['struk'])) {
+    $id = $_GET['struk'];
+
+    $struk = $conn->query("SELECT * FROM penjualan WHERE id=$id")->fetch_assoc();
+
+    $detail = $conn->query("
+        SELECT d.*, b.nama 
+        FROM detail_penjualan d
+        JOIN barang b ON d.barang_id = b.id
+        WHERE d.penjualan_id=$id
+    ");
+}
 ?>
+
 <!DOCTYPE html>
-<html lang="id">
+<html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Penjualan - Kasir</title>
-
+<title>Kasir</title>
 <style>
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    font-family:'Segoe UI', sans-serif;
+    /* ===== SIDEBAR ===== */
+.sidebar {
+    width: 240px;
+    height: 100vh;
+    background: #FFF8E1;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }
 
-body{
-    display:flex;
-    min-height:100vh;
-    background:#F7F3EE;
-    color:#1A1A1A;
+.logo {
+    font-size: 22px;
+    font-weight: bold;
+    color: #1A1A1A;
+    margin-bottom: 20px;
 }
 
-/* ================= SIDEBAR ================= */
-.sidebar{
-    width:260px;
-    background:#FFF8E1;
-    padding:30px 20px;
-    border-radius:0 25px 25px 0;
-    display:flex;
-    flex-direction:column;
-    justify-content:space-between;
+.profile {
+    display: flex;
+    align-items: center;
+    margin-bottom: 25px;
 }
 
-.brand{
-    font-size:24px;
-    font-weight:600;
-    line-height:1.3;
-    margin-bottom:30px;
+.profile-circle {
+    width: 55px;
+    height: 55px;
+    border-radius: 50%;
+    background: #C8E6C9;
+    margin-right: 10px;
 }
 
-.profile{
-    display:flex;
-    align-items:center;
-    gap:15px;
-    margin-bottom:40px;
+.menu a {
+    display: block;
+    padding: 12px;
+    margin: 5px 0;
+    text-decoration: none;
+    color: #4A4A4A;
+    border-radius: 8px;
 }
 
-.avatar{
-    width:60px;
-    height:60px;
-    border-radius:50%;
-    background:#C8E6C9;
+.menu a:hover {
+    background: #C8E6C9;
+    color: #1A1A1A;
 }
 
-.menu{
-    display:flex;
-    flex-direction:column;
-    gap:10px;
+.logout {
+    margin-top: 20px;
 }
 
-.menu a{
-    text-decoration:none;
-    padding:12px 15px;
-    border-radius:12px;
-    color:#4A4A4A;
-    transition:0.2s;
-}
+body{display:flex;font-family:Segoe UI;background:#F7F3EE;}
+.sidebar{width:220px;background:#FFF8E1;padding:20px;}
+.main{flex:1;padding:20px;}
+.table{width:100%;}
+input,select{padding:6px;margin:5px;}
+.btn{padding:8px 15px;border:none;border-radius:5px;cursor:pointer;}
 
-.menu a:hover{
-    background:#C8E6C9;
-    color:#1A1A1A;
-}
-
-.menu a.active{
-    background:#C8E6C9;
-    color:#1A1A1A;
-    font-weight:600;
-}
-
-.logout{
-    margin-top:30px;
-    color:#4A4A4A;
-    cursor:pointer;
-}
-
-/* ================= MAIN ================= */
-.main{
-    flex:1;
-    padding:40px;
-}
-
-.top-header{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    margin-bottom:25px;
-}
-
-.title{
-    font-size:28px;
-    font-weight:600;
-}
-
-.icons{
-    color:#4A4A4A;
-    font-size:20px;
-}
-
-/* ================= TAMBAH ITEM BAR ================= */
-.add-bar{
-    width:100%;
-    background:#D6D6D6;
-    border-radius:30px;
-    padding:10px;
-    margin-bottom:20px;
-}
-
-.btn-add{
-    background:#BDBDBD;
-    border:none;
-    padding:10px 20px;
-    border-radius:25px;
-    cursor:pointer;
-    font-weight:500;
-}
-
-/* ================= TABLE BOX ================= */
-.table-box{
-    background:#BDBDBD;
-    border-radius:18px;
-    padding:20px;
-    margin-bottom:20px;
-}
-
-.table-header{
-    display:grid;
-    grid-template-columns:2fr 1fr 1fr 1fr 1fr;
-    font-weight:600;
-    margin-bottom:10px;
-}
-
-.table-body{
-    height:200px;
-    background:#E0E0E0;
-    border-radius:15px;
-    border:2px solid #CFCFCF;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    color:#9E9E9E;
-}
-
-/* ================= TOTAL ================= */
-.total-bar{
-    width:100%;
-    background:#D6D6D6;
-    border-radius:15px;
-    padding:12px 20px;
-    font-weight:500;
-    margin-bottom:20px;
-}
-
-/* ================= PAYMENT ================= */
-.payment{
-    margin-bottom:25px;
-}
-
-.payment-title{
-    font-weight:500;
-    margin-bottom:10px;
-}
-
-.payment-methods{
-    display:flex;
-    gap:15px;
-}
-
-.method-btn{
-    background:#D6D6D6;
-    border:none;
-    padding:10px 25px;
-    border-radius:25px;
-    cursor:pointer;
-    font-weight:500;
-}
-
-.method-btn:hover{
-    background:#C8E6C9;
-}
-
-/* ================= PAY BUTTON ================= */
-.pay-btn{
-    background:#4A4A4A;
-    color:white;
-    border:none;
-    padding:14px 30px;
-    border-radius:30px;
-    font-weight:600;
-    cursor:pointer;
-}
-
-.pay-btn:hover{
-    background:#2E7D32;
+.profile-img {
+    width: 55px;
+    height: 55px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #C8E6C9;
 }
 </style>
 </head>
+
 <body>
 
-<!-- SIDEBAR -->
+<!--SIDEBAR-->
 <div class="sidebar">
     <div>
-        <div class="brand">Warung<br>Mbak Eni</div>
+        <div class="logo">Warung Mbak Eni</div>
 
         <div class="profile">
-            <div class="avatar"></div>
-            <div><?php echo $namaAkun; ?></div>
-        </div>
+    <img src="asset/logohijau.png" class="profile-img">
+    <div>Kurnia Fika</div>
+</div>
 
         <div class="menu">
             <a href="kasirdashboard.php">Dashboard</a>
-            <a href="kasirpenjualan.php" class="active">Penjualan</a>
-            <a href="tutupkasir.php">Tutup Kasir</a>
+            <a href="#">Penjualan</a>
+            <a href="kasirtutup.php">Tutup Kasir</a>
         </div>
     </div>
 
-    <div class="logout">Logout</div>
+    <div class="logout">
+        <a href="logout.php">Logout</a>
+    </div>
 </div>
 
-<!-- MAIN CONTENT -->
+
 <div class="main">
 
-    <div class="top-header">
-        <div class="title">Penjualan</div>
-        <div class="icons">🔔 ⋮</div>
-    </div>
+<h2>Penjualan</h2>
 
-    <!-- TAMBAH ITEM -->
-    <div class="add-bar">
-        <button class="btn-add">+ Tambah Item</button>
-    </div>
+<form method="POST">
 
-    <!-- TABEL PENJUALAN -->
-    <div class="table-box">
-        <div class="table-header">
-            <div>Nama Barang</div>
-            <div>Jumlah</div>
-            <div>Harga Satuan</div>
-            <div>Diskon</div>
-            <div>Subtotal</div>
-        </div>
+<button type="button" onclick="tambahItem()">+ Tambah Item</button>
 
-        <div class="table-body">
-            Item penjualan akan tampil di sini
-        </div>
-    </div>
+<table class="table">
+<tr>
+<th>Barang</th>
+<th>Jumlah</th>
+<th>Harga</th>
+<th>Diskon</th>
+<th>Subtotal</th>
+</tr>
 
-    <!-- TOTAL -->
-    <div class="total-bar">
-        Total Pembelian
-    </div>
+<tbody id="tableBody"></tbody>
+</table>
 
-    <!-- METODE PEMBAYARAN -->
-    <div class="payment">
-        <div class="payment-title">Metode Pembayaran</div>
-        <div class="payment-methods">
-            <button class="method-btn">Tunai</button>
-            <button class="method-btn">Qris</button>
-        </div>
-    </div>
+<br>
+Total: <input type="text" id="total" name="total" readonly>
 
-    <!-- BUTTON BAYAR -->
-    <button class="pay-btn">Bayar & Cetak Struk</button>
+<br><br>
+
+Metode:
+<select name="metode">
+    <option value="Tunai">Tunai</option>
+    <option value="QRIS">QRIS</option>
+</select>
+
+<br><br>
+
+<button type="submit" name="bayar" class="btn">Bayar</button>
+
+</form>
 
 </div>
 
+<script>
+function tambahItem(){
+let row=`
+<tr>
+<td>
+<select name="barang[]">
+<?php 
+$barang->data_seek(0);
+while($b=$barang->fetch_assoc()): ?>
+<option value="<?= $b['id'] ?>"><?= $b['nama'] ?></option>
+<?php endwhile; ?>
+</select>
+</td>
+
+<td><input type="number" name="jumlah[]" oninput="hitung(this)"></td>
+<td><input type="number" name="harga[]" oninput="hitung(this)"></td>
+<td><input type="number" name="diskon[]" value="0" oninput="hitung(this)"></td>
+<td><input type="text" name="subtotal[]" readonly></td>
+</tr>
+`;
+document.getElementById("tableBody").insertAdjacentHTML("beforeend",row);
+}
+
+function hitung(el){
+let row=el.closest("tr");
+let jumlah=row.querySelector('[name="jumlah[]"]').value;
+let harga=row.querySelector('[name="harga[]"]').value;
+let diskon=row.querySelector('[name="diskon[]"]').value;
+
+let subtotal=(jumlah*harga)-(diskon||0);
+row.querySelector('[name="subtotal[]"]').value=subtotal;
+
+hitungTotal();
+}
+
+function hitungTotal(){
+let total=0;
+document.querySelectorAll('[name="subtotal[]"]').forEach(el=>{
+total+=parseInt(el.value)||0;
+});
+document.getElementById("total").value=total;
+}
+</script>
+
+
+<?php if($struk): ?>
+<div id="struk" style="display:none;">
+    <div style="width:250px; font-family:monospace;">
+        <h3 style="text-align:center;">Warung Mbak Eni</h3>
+        <p style="text-align:center;">Struk Pembelian</p>
+        <hr>
+
+        <p>Tanggal: <?= $struk['tanggal'] ?></p>
+        <hr>
+
+        <?php while($d = $detail->fetch_assoc()): ?>
+            <div>
+                <?= $d['nama'] ?><br>
+                <?= $d['jumlah'] ?> x <?= number_format($d['harga']) ?>
+                <span style="float:right;">
+                    <?= number_format($d['subtotal']) ?>
+                </span>
+            </div>
+        <?php endwhile; ?>
+
+        <hr>
+        <b>Total: Rp <?= number_format($struk['total']) ?></b><br>
+        Metode: <?= $struk['metode'] ?>
+
+        <hr>
+        <p style="text-align:center;">Terima Kasih 🙏</p>
+    </div>
+</div>
+<?php endif; ?>
+
+<?php if($struk): ?>
+<script>
+window.onload = function() {
+    let isi = document.getElementById("struk").innerHTML;
+
+    let win = window.open('', '', 'width=300,height=600');
+    win.document.write(isi);
+    win.document.close();
+    win.print();
+}
+</script>
+<?php endif; ?>
 </body>
+
+
 </html>
