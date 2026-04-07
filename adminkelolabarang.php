@@ -1,33 +1,63 @@
 <?php
-$namaAkun = "Admin";
+session_start();
 
-// contoh data dummy (nanti dari database)
-$dataBarang = [
-    ["id" => "BRG001", "nama" => "Tomat", "stok" => 20, "harga" => 5000],
-    ["id" => "BRG002", "nama" => "Bayam", "stok" => 12, "harga" => 3000],
-    ["id" => "BRG003", "nama" => "Cabai", "stok" => 5, "harga" => 25000],
-];
+// CEK LOGIN
+if (!isset($_SESSION['role'])) {
+    header("Location: login.php");
+    exit;
+}
+
+$conn = new mysqli("localhost", "root", "", "warung");
+
+// TAMBAH DATA
+if (isset($_POST['tambah'])) {
+    $kode = $_POST['kode'];
+    $nama = $_POST['nama'];
+    $stok = $_POST['stok'];
+    $harga = $_POST['harga'];
+
+    $conn->query("INSERT INTO barang (kode_barang,nama,stok,harga) 
+                  VALUES ('$kode','$nama','$stok','$harga')");
+    header("Location: adminkelolabarang.php");
+}
+
+// HAPUS
+if (isset($_GET['hapus'])) {
+    $id = $_GET['hapus'];
+    $conn->query("DELETE FROM barang WHERE id=$id");
+    header("Location: adminkelolabarang.php");
+}
+
+// UPDATE
+if (isset($_POST['update'])) {
+    $id = $_POST['id'];
+    $kode = $_POST['kode'];
+    $nama = $_POST['nama'];
+    $stok = $_POST['stok'];
+    $harga = $_POST['harga'];
+
+    $conn->query("UPDATE barang SET 
+        kode_barang='$kode',
+        nama='$nama',
+        stok='$stok',
+        harga='$harga'
+        WHERE id=$id");
+
+    header("Location: adminkelolabarang.php");
+}
+
+// AMBIL DATA
+$data = $conn->query("SELECT * FROM barang");
 ?>
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<title>Kelola Inventaris Barang</title>
+<title>Kelola Barang</title>
 
 <style>
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: Segoe UI, sans-serif;
-}
-
-body {
-    background: #F7F3EE;
-    display: flex;
-}
-
-/* ===== SIDEBAR ===== */
+    /* ===== SIDEBAR ===== */
 .sidebar {
     width: 240px;
     height: 100vh;
@@ -68,98 +98,33 @@ body {
     border-radius: 8px;
 }
 
-.menu a.active {
-    background: #C8E6C9;
-    color: #1A1A1A;
-}
-
 .menu a:hover {
     background: #C8E6C9;
+    color: #1A1A1A;
 }
 
 .logout {
     margin-top: 20px;
 }
-
-/* ===== MAIN ===== */
-.main {
-    flex: 1;
-    padding: 25px;
-}
-
-.title {
-    font-size: 22px;
-    font-weight: 600;
-    color: #1A1A1A;
-    margin-bottom: 15px;
-}
-
-.topbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-}
-
-.btn {
-    background: #2E7D32;
-    color: white;
-    border: none;
-    padding: 10px 18px;
-    border-radius: 20px;
-    cursor: pointer;
-}
-
-.btn:hover {
-    opacity: 0.9;
-}
-
-/* ===== TABLE ===== */
-.card {
-    background: white;
-    border-radius: 14px;
-    padding: 15px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-}
-
-.table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-.table th {
-    text-align: left;
-    padding: 12px;
-    color: #1A1A1A;
-}
-
-.table td {
-    padding: 12px;
-    border-top: 1px solid #eee;
-    color: #4A4A4A;
-}
-
-.action-btn {
-    padding: 6px 12px;
-    border-radius: 8px;
-    border: none;
-    cursor: pointer;
-    margin-right: 5px;
-}
-
-.edit {
-    background: #C8E6C9;
-}
-
-.delete {
-    background: #FFDADA;
-}
+body {font-family: Segoe UI; background:#F7F3EE; display:flex;}
+.sidebar {width:220px; background:#FFF8E1; padding:20px;}
+.menu a {display:block; padding:10px; text-decoration:none; color:#333;}
+.menu a:hover {background:#C8E6C9;}
+.main {flex:1; padding:20px;}
+.card {background:white; padding:15px; border-radius:10px;}
+.table {width:100%; border-collapse:collapse;}
+.table th, .table td {padding:10px; border-bottom:1px solid #eee;}
+.btn {background:#2E7D32; color:white; padding:8px 15px; border:none; border-radius:6px; cursor:pointer;}
+.delete {background:red; color:white;}
+.edit {background:orange; color:white;}
+input {padding:8px; margin:5px;}
+#formEdit {display:none; background:#fff; padding:15px; border:1px solid #ccc; margin-top:15px;}
 </style>
 </head>
 
 <body>
 
-<!-- ===== SIDEBAR ===== -->
+<!--SIDEBAR-->
 <div class="sidebar">
     <div>
         <div class="logo">Warung Mbak Eni</div>
@@ -171,55 +136,92 @@ body {
 
         <div class="menu">
             <a href="admindashboard.php">Dashboard</a>
-            <a href="#" class="active">Kelola Barang</a>
+            <a href="#">Kelola Barang</a>
             <a href="adminpenerimaan.php">Input Penerimaan</a>
-            <a href="#">Purchase Order</a>
+            <a href="adminpo.php">Purchase Order</a>
             <a href="#">Laporan</a>
         </div>
     </div>
 
     <div class="logout">
-        <a href="#">Logout</a>
+        <a href="logout.php">Logout</a>
     </div>
 </div>
 
-<!-- ===== MAIN CONTENT ===== -->
+<!-- MAIN -->
 <div class="main">
 
-    <div class="topbar">
-        <div class="title">Kelola Inventaris Barang</div>
-        <button class="btn">+ Tambah Barang</button>
+    <h2>Kelola Barang</h2>
+
+    <!-- FORM TAMBAH -->
+    <div class="card">
+        <h3>Tambah Barang</h3>
+        <form method="POST">
+            <input type="text" name="kode" placeholder="Kode Barang" required>
+            <input type="text" name="nama" placeholder="Nama Barang" required>
+            <input type="number" name="stok" placeholder="Stok" required>
+            <input type="number" name="harga" placeholder="Harga" required>
+            <button type="submit" name="tambah" class="btn">Tambah</button>
+        </form>
     </div>
 
-    <div class="card">
-        <h3 style="margin-bottom:10px;">Daftar Barang</h3>
+    <br>
 
+    <!-- TABEL -->
+    <div class="card">
+        <h3>Daftar Barang</h3>
         <table class="table">
             <tr>
-                <th>ID Barang</th>
+                <th>Kode</th>
                 <th>Nama</th>
                 <th>Stok</th>
-                <th>Harga Jual</th>
+                <th>Harga</th>
                 <th>Aksi</th>
             </tr>
 
-            <?php foreach($dataBarang as $barang): ?>
+            <?php while($row = $data->fetch_assoc()): ?>
             <tr>
-                <td><?= $barang['id']; ?></td>
-                <td><?= $barang['nama']; ?></td>
-                <td><?= $barang['stok']; ?></td>
-                <td>Rp <?= number_format($barang['harga'],0,",","."); ?></td>
+                <td><?= $row['kode_barang']; ?></td>
+                <td><?= $row['nama']; ?></td>
+                <td><?= $row['stok']; ?></td>
+                <td>Rp <?= number_format($row['harga'],0,",","."); ?></td>
                 <td>
-                    <button class="action-btn edit">Edit</button>
-                    <button class="action-btn delete">Hapus</button>
+                    <button class="edit" onclick="editData('<?= $row['id'] ?>','<?= $row['kode_barang'] ?>','<?= $row['nama'] ?>','<?= $row['stok'] ?>','<?= $row['harga'] ?>')">Edit</button>
+                    
+                    <a href="?hapus=<?= $row['id'] ?>" onclick="return confirm('Yakin hapus?')">
+                        <button class="delete">Hapus</button>
+                    </a>
                 </td>
             </tr>
-            <?php endforeach; ?>
-
+            <?php endwhile; ?>
         </table>
     </div>
 
+    <!-- FORM EDIT -->
+    <div id="formEdit">
+        <h3>Edit Barang</h3>
+        <form method="POST">
+            <input type="hidden" name="id" id="editId">
+            <input type="text" name="kode" id="editKode" required>
+            <input type="text" name="nama" id="editNama" required>
+            <input type="number" name="stok" id="editStok" required>
+            <input type="number" name="harga" id="editHarga" required>
+            <button type="submit" name="update" class="btn">Update</button>
+        </form>
+    </div>
+
 </div>
+
+<script>
+function editData(id,kode,nama,stok,harga){
+    document.getElementById('formEdit').style.display = 'block';
+    document.getElementById('editId').value = id;
+    document.getElementById('editKode').value = kode;
+    document.getElementById('editNama').value = nama;
+    document.getElementById('editStok').value = stok;
+    document.getElementById('editHarga').value = harga;
+}
+</script>
 
 </body>
 </html>

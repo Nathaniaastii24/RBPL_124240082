@@ -29,9 +29,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['role'])) {
     <link rel="stylesheet" href="css/style.css" type="text/css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
 </head>
-<body>
+<body style="background-color:#FFF8E1;">
 
-<div class="container">
+<div class="container" style="max-width:420px; margin:60px auto;">
      <!-- LOGO -->
 <div style="width:160px; height:160px; background:#e0e0e0; border-radius:16px; display:flex; align-items:center; justify-content:center; overflow:hidden; margin:0 auto 28px auto;">
     <img src="asset/logohijau.png" alt="Logo" style="width:100%; height:100%; object-fit:contain;">

@@ -59,7 +59,7 @@ if ($user && $password === $user['password']) {
         </div>
     </form>
     <div style="text-align:center; margin-top:12px;">
-        <a href="index.php" style="font-size:13px; color:#4A4A4A; text-decoration:none;">← Kembali</a>
+        <a href="index.php" style="font-size:13px; color:#4A4A4A; text-decoration:none;">Kembali</a>
     </div>
 </div>
 </body>

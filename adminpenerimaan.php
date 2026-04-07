@@ -1,285 +1,245 @@
 <?php
-// adminpenerimaan.php
+session_start();
+
+// CEK LOGIN
+if (!isset($_SESSION['role'])) {
+    header("Location: login.php");
+    exit;
+}
+
+$conn = new mysqli("localhost", "root", "", "warung");
+
+// SIMPAN DATA
+if (isset($_POST['simpan'])) {
+
+    $supplier = $_POST['supplier'];
+    $jenis    = $_POST['jenis'];
+    $invoice  = $_POST['invoice'];
+    $tanggal  = $_POST['tanggal'];
+    $total    = $_POST['total'];
+
+    $conn->query("INSERT INTO penerimaan (supplier,jenis,invoice,tanggal,total)
+                  VALUES ('$supplier','$jenis','$invoice','$tanggal','$total')");
+
+    $penerimaan_id = $conn->insert_id;
+
+    foreach ($_POST['barang'] as $i => $barang_id) {
+        $jumlah = $_POST['jumlah'][$i];
+        $harga  = $_POST['harga'][$i];
+        $subtotal = $jumlah * $harga;
+
+        $conn->query("INSERT INTO detail_penerimaan 
+        (penerimaan_id,barang_id,jumlah,harga,subtotal)
+        VALUES ('$penerimaan_id','$barang_id','$jumlah','$harga','$subtotal')");
+    }
+
+    header("Location: " . $_SERVER['PHP_SELF']);
+exit;
+}
+
+// AMBIL DATA BARANG
+$barang = $conn->query("SELECT * FROM barang");
 ?>
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Penerimaan Barang</title>
 
 <style>
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    font-family:'Segoe UI',sans-serif;
+    /* ===== SIDEBAR ===== */
+.sidebar {
+    width: 240px;
+    height: 100vh;
+    background: #FFF8E1;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }
 
-body{
-    display:flex;
-    min-height:100vh;
-    background:#F7F3EE;
-    color:#1A1A1A;
+.logo {
+    font-size: 22px;
+    font-weight: bold;
+    color: #1A1A1A;
+    margin-bottom: 20px;
 }
 
-/* ================= SIDEBAR ================= */
-
-.sidebar{
-    width:260px;
-    background:#FFF8E1;
-    padding:30px 20px;
-    border-radius:0 25px 25px 0;
-    display:flex;
-    flex-direction:column;
-    justify-content:space-between;
+.profile {
+    display: flex;
+    align-items: center;
+    margin-bottom: 25px;
 }
 
-.brand{
-    font-size:24px;
-    font-weight:600;
-    line-height:1.3;
-    margin-bottom:30px;
+.profile-circle {
+    width: 55px;
+    height: 55px;
+    border-radius: 50%;
+    background: #C8E6C9;
+    margin-right: 10px;
 }
 
-.profile{
-    display:flex;
-    align-items:center;
-    gap:15px;
-    margin-bottom:40px;
+.menu a {
+    display: block;
+    padding: 12px;
+    margin: 5px 0;
+    text-decoration: none;
+    color: #4A4A4A;
+    border-radius: 8px;
 }
 
-.avatar{
-    width:60px;
-    height:60px;
-    border-radius:50%;
-    background:#C8E6C9;
+.menu a:hover {
+    background: #C8E6C9;
+    color: #1A1A1A;
 }
 
-.menu{
-    display:flex;
-    flex-direction:column;
-    gap:10px;
+.logout {
+    margin-top: 20px;
 }
 
-.menu a{
-    text-decoration:none;
-    padding:12px 15px;
-    border-radius:12px;
-    color:#4A4A4A;
-    transition:0.2s;
-}
-
-.menu a:hover{
-    background:#C8E6C9;
-    color:#1A1A1A;
-}
-
-.menu a.active{
-    background:#C8E6C9;
-    font-weight:600;
-}
-
-.logout{
-    margin-top:30px;
-    color:#4A4A4A;
-}
-
-/* ================= MAIN ================= */
-
-.main{
-    flex:1;
-    padding:40px;
-}
-
-.title{
-    font-size:28px;
-    font-weight:600;
-    margin-bottom:30px;
-}
-
-/* ================= FORM ================= */
-
-.form-grid{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:20px;
-    margin-bottom:25px;
-}
-
-.form-group input,
-.form-group select{
-    width:100%;
-    padding:12px;
-    border-radius:12px;
-    border:none;
-    background:#E0E0E0;
-}
-
-/* ================= TABLE ================= */
-
-.table-box{
-    background:#DADADA;
-    padding:20px;
-    border-radius:18px;
-    margin-bottom:25px;
-}
-
-.table-header{
-    display:grid;
-    grid-template-columns:2fr 1fr 1fr 1fr;
-    font-weight:600;
-    margin-bottom:10px;
-}
-
-.table-body{
-    height:150px;
-    border-radius:15px;
-    background:#F7F3EE;
-    border:2px solid #CFCFCF;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    color:#999;
-}
-
-/* ================= BUTTON ================= */
-
-.btn-add{
-    background:#4A4A4A;
-    color:white;
-    border:none;
-    padding:10px 18px;
-    border-radius:20px;
-    cursor:pointer;
-    margin-bottom:30px;
-}
-
-.bottom-section{
-    display:flex;
-    justify-content:space-between;
-    align-items:flex-end;
-}
-
-.total-box{
-    text-align:right;
-}
-
-.total-box input{
-    padding:12px;
-    border-radius:20px;
-    border:none;
-    background:#E0E0E0;
-    width:200px;
-}
-
-.btn-save{
-    background:#2E7D32;
-    color:white;
-    border:none;
-    padding:12px 25px;
-    border-radius:25px;
-    margin-top:10px;
-    cursor:pointer;
-    font-weight:600;
-}
-
-.btn-save:hover{
-    background:#256628;
-}
+body {display:flex; font-family:Segoe UI; background:#F7F3EE;}
+.sidebar {width:240px; background:#FFF8E1; padding:20px;}
+.menu a {display:block; padding:10px; text-decoration:none; color:#333;}
+.menu a:hover {background:#C8E6C9;}
+.main {flex:1; padding:25px;}
+.card {background:#fff; padding:15px; border-radius:10px; margin-bottom:20px;}
+input, select {padding:8px; margin:5px; width:100%;}
+.table {width:100%; border-collapse:collapse;}
+.table th, .table td {padding:10px; border-bottom:1px solid #eee;}
+.btn {background:#2E7D32; color:white; padding:8px 15px; border:none; border-radius:6px; cursor:pointer;}
+.btn-add {background:#444;}
+.total-box {text-align:right;}
 </style>
 </head>
 
 <body>
 
-<!-- SIDEBAR -->
+<!--SIDEBAR-->
 <div class="sidebar">
     <div>
-        <div class="brand">Warung<br>Mbak Eni</div>
+        <div class="logo">Warung Mbak Eni</div>
 
         <div class="profile">
-            <div class="avatar"></div>
-            <div>Nama<br>Akun</div>
+            <div class="profile-circle"></div>
+            <div>Nama Akun</div>
         </div>
 
         <div class="menu">
             <a href="admindashboard.php">Dashboard</a>
-            <a href="adminkelolabarang.php">Kelola Barang</a>
-            <a href="adminpenerimaan.php" class="active">Input Penerimaan</a>
+            <a href="#">Kelola Barang</a>
+            <a href="adminpenerimaan.php">Input Penerimaan</a>
             <a href="adminpo.php">Purchase Order</a>
             <a href="#">Laporan</a>
         </div>
     </div>
 
-    <div class="logout">Logout</div>
+    <div class="logout">
+        <a href="logout.php">Logout</a>
+    </div>
 </div>
 
 <!-- MAIN -->
 <div class="main">
 
-    <div class="title">Penerimaan Barang</div>
+<h2>Penerimaan Barang</h2>
 
-    <form method="POST">
+<form method="POST">
 
-        <div class="form-grid">
-            <div class="form-group">
-                <select name="jenis">
-                    <option>Jenis Barang</option>
-                    <option>Bahan Baku</option>
-                    <option>Produk Jadi</option>
-                </select>
-            </div>
+<!-- FORM UTAMA -->
+<div class="card">
+    <h3>Data Penerimaan</h3>
 
-            <div class="form-group">
-                <select name="supplier">
-                    <option>Nama Supplier</option>
-                    <option>Supplier A</option>
-                    <option>Supplier B</option>
-                </select>
-            </div>
+    <select name="jenis" required>
+        <option value="">Pilih Jenis</option>
+        <option>Sayuran</option>
+        <option>Sembako</option>
+    </select>
 
-            <div class="form-group">
-                <input type="text" name="invoice" placeholder="Nomor PO / Invoice">
-            </div>
+    <select name="supplier" required>
+        <option value="">Pilih Supplier</option>
+        <option>Kebun Makmur</option>
+        <option>Mitra Sembako</option>
+        <option>Sumber Rezeki</option>
+        <option>Tani Jaya</option>
+    </select>
 
-            <div class="form-group">
-                <input type="date" name="tanggal">
-            </div>
-        </div>
-
-        <div class="table-box">
-            <div class="table-header">
-                <div>Nama Barang</div>
-                <div>Jumlah Diterima</div>
-                <div>Harga Beli</div>
-                <div>Subtotal</div>
-            </div>
-
-            <div class="table-body">
-                Detail barang akan tampil di sini
-            </div>
-        </div>
-
-        <h3 style="margin-bottom:10px;">Tambah Detail Barang</h3>
-        <button type="button" class="btn-add">+ Tambah Item</button>
-
-        <div class="bottom-section">
-            <div></div>
-
-            <div class="total-box">
-                <div style="margin-bottom:8px;font-weight:600;">
-                    Total Harga Penerimaan
-                </div>
-                <input type="text" placeholder="Rp">
-                <br>
-                <button type="submit" class="btn-save">
-                    Verifikasi & Simpan
-                </button>
-            </div>
-        </div>
-
-    </form>
+    <input type="text" name="invoice" placeholder="No Invoice" required>
+    <input type="date" name="tanggal" required>
 </div>
+
+<!-- TABEL -->
+<div class="card">
+    <h3>Detail Barang</h3>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Barang</th>
+                <th>Jumlah</th>
+                <th>Harga</th>
+                <th>Subtotal</th>
+            </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+    </table>
+
+    <button type="button" class="btn btn-add" onclick="tambahItem()">+ Tambah Item</button>
+</div>
+
+<!-- TOTAL -->
+<div class="card total-box">
+    <h3>Total</h3>
+    <input type="text" id="total" name="total" readonly>
+    <br><br>
+    <button type="submit" name="simpan" class="btn">Simpan</button>
+</div>
+
+</form>
+
+</div>
+
+<script>
+function tambahItem() {
+    let row = `
+    <tr>
+        <td>
+            <select name="barang[]">
+                <?php 
+                $barang->data_seek(0);
+                while($b = $barang->fetch_assoc()): ?>
+                    <option value="<?= $b['id'] ?>"><?= $b['nama'] ?></option>
+                <?php endwhile; ?>
+            </select>
+        </td>
+        <td><input type="number" name="jumlah[]" oninput="hitung(this)"></td>
+        <td><input type="number" name="harga[]" oninput="hitung(this)"></td>
+        <td><input type="text" name="subtotal[]" readonly></td>
+    </tr>
+    `;
+    document.getElementById("tableBody").insertAdjacentHTML("beforeend", row);
+}
+
+function hitung(el) {
+    let row = el.closest("tr");
+    let jumlah = row.querySelector('[name="jumlah[]"]').value;
+    let harga  = row.querySelector('[name="harga[]"]').value;
+    let subtotal = jumlah * harga;
+
+    row.querySelector('[name="subtotal[]"]').value = subtotal;
+
+    hitungTotal();
+}
+
+function hitungTotal() {
+    let total = 0;
+    document.querySelectorAll('[name="subtotal[]"]').forEach(el => {
+        total += parseInt(el.value) || 0;
+    });
+
+    document.getElementById("total").value = total;
+}
+</script>
 
 </body>
 </html>

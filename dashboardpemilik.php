@@ -202,7 +202,7 @@ body {
     </div>
   </div>
 
-  <a class="logout" href="#">Logout</a>
+  <a class="logout" href="logout.php">Logout</a>
 </div>
 
 <!-- MAIN -->

@@ -144,7 +144,7 @@ body {
 
 <body>
 
-<!-- ===== SIDEBAR ===== -->
+
 <div class="sidebar">
     <div>
         <div class="logo">Warung Mbak Eni</div>
@@ -164,11 +164,11 @@ body {
     </div>
 
     <div class="logout">
-        <a href="#">Logout</a>
+        <a href="logout.php">Logout</a>
     </div>
 </div>
 
-<!-- ===== MAIN ===== -->
+
 <div class="main">
     <div class="topbar">
         <div class="welcome">
@@ -203,4 +203,5 @@ body {
 </div>
 
 </body>
-</html>
+</html> 
+
