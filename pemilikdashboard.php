@@ -1,16 +1,127 @@
 <?php
 session_start();
-if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'Pemilik') {
-    header('Location: index.php'); exit;
-}
-?>
 
-<?php
-// contoh data dinamis
-$namaAkun = "Nama Akun";
-$penjualanHariIni = 450000;
-$jumlahTransaksi = 18;
-$produkTerlaris = "Bayam";
+// 🔴 DEBUG MODE (WAJIB SAAT ERROR)
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
+// ================= CEK ROLE =================
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'Pemilik') {
+    header('Location: index.php');
+    exit;
+}
+
+// ================= KONEKSI =================
+$conn = new mysqli("localhost","root","","warung");
+
+if ($conn->connect_error) {
+    die("Koneksi gagal: " . $conn->connect_error);
+}
+
+// ================= DATA =================
+$today = date("Y-m-d");
+
+// ================= PENJUALAN HARI INI =================
+$q1 = $conn->query("
+    SELECT IFNULL(SUM(total),0) as total
+    FROM penjualan
+    WHERE DATE(tanggal) = '$today'
+");
+
+if(!$q1){
+    die("Error penjualan: ".$conn->error);
+}
+$penjualan = $q1->fetch_assoc();
+
+// ================= JUMLAH TRANSAKSI =================
+$q2 = $conn->query("
+    SELECT COUNT(*) as jumlah
+    FROM penjualan
+    WHERE DATE(tanggal) = '$today'
+");
+
+if(!$q2){
+    die("Error transaksi: ".$conn->error);
+}
+$transaksi = $q2->fetch_assoc();
+
+// ================= PRODUK TERLARIS =================
+$q3 = $conn->query("
+    SELECT b.nama, SUM(d.jumlah) as terjual
+    FROM detail_penjualan d
+    JOIN barang b ON d.barang_id = b.id
+    GROUP BY b.id, b.nama
+    ORDER BY terjual DESC
+    LIMIT 1
+");
+
+if(!$q3){
+    die("Error produk terlaris: ".$conn->error);
+}
+$laris = $q3->fetch_assoc();
+
+// ================= GRAFIK =================
+$q4 = $conn->query("
+    SELECT DATE(tanggal) as tgl, SUM(total) as total
+    FROM penjualan
+    GROUP BY DATE(tanggal)
+    ORDER BY tgl ASC
+");
+
+if(!$q4){
+    die("Error grafik: ".$conn->error);
+}
+
+$tanggal = [];
+$total = [];
+
+while($g = $q4->fetch_assoc()){
+    $tanggal[] = $g['tgl'];
+    $total[] = $g['total'];
+}
+
+// ================= PIE =================
+$q5 = $conn->query("
+    SELECT metode, SUM(total) as total
+    FROM penjualan
+    WHERE MONTH(tanggal) = MONTH(CURRENT_DATE())
+    GROUP BY metode
+");
+
+if(!$q5){
+    die("Error metode: ".$conn->error);
+}
+
+$labelMetode = [];
+$dataMetode = [];
+
+while($m = $q5->fetch_assoc()){
+    $labelMetode[] = $m['metode'];
+    $dataMetode[] = $m['total'];
+}
+
+// ================= STOK MENIPIS =================
+$q6 = $conn->query("
+    SELECT nama, stok
+    FROM barang
+    WHERE stok < 5
+");
+
+if(!$q6){
+    die("Error stok: ".$conn->error);
+}
+
+// ================= AKTIVITAS =================
+$q7 = $conn->query("
+    SELECT *
+    FROM penjualan
+    ORDER BY tanggal DESC
+    LIMIT 5
+");
+
+if(!$q7){
+    die("Error aktivitas: ".$conn->error);
+}
 ?>
 
 <!DOCTYPE html>
@@ -18,7 +129,7 @@ $produkTerlaris = "Bayam";
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dashboard — Warung Mbak Eni</title>
+<title>Dashboard</title>
 
 <style>
 :root {
@@ -215,62 +326,108 @@ body {
     </div>
 </div>
 
-<!-- MAIN -->
+<!--MAIN-->
 <div class="main">
 
+  <!-- HEADER -->
   <div class="header">
-    <div class="welcome">Selamat Datang, <?= $namaAkun ?></div>
+    <div class="welcome">Selamat Datang, <?= $_SESSION['nama'] ?? 'Pemilik' ?></div>
     <input class="search" placeholder="Cari...">
-    <div>🔔</div>
   </div>
 
-  <!-- 3 KARTU -->
+  <!-- 3 CARD ATAS -->
   <div class="grid-3">
     <div class="card">
       <div class="card-title">Penjualan Hari Ini</div>
       <div class="card-value">
-        Rp <?= number_format($penjualanHariIni,0,',','.') ?>
+        Rp <?= number_format($penjualan['total']) ?>
       </div>
     </div>
 
     <div class="card">
       <div class="card-title">Jumlah Transaksi</div>
-      <div class="card-value"><?= $jumlahTransaksi ?></div>
+      <div class="card-value">
+        <?= $transaksi['jumlah'] ?>
+      </div>
     </div>
 
     <div class="card">
       <div class="card-title">Produk Terlaris</div>
-      <div class="card-value"><?= $produkTerlaris ?></div>
+      <div class="card-value">
+        <?= $laris['nama'] ?? 'Belum ada data' ?>
+      </div>
     </div>
   </div>
 
   <!-- GRAFIK -->
   <div class="grid-2">
     <div class="card">
-      <div>Grafik Penjualan Harian</div>
-      <div class="chart">Area Grafik</div>
+      <div class="card-title">Grafik Penjualan Harian</div>
+      <canvas id="grafik"></canvas>
     </div>
 
     <div class="card">
-      <div>Komposisi Penjualan (Bulan ini)</div>
-      <div class="chart">Pie Chart</div>
+      <div class="card-title">Komposisi Penjualan (Bulan ini)</div>
+      <canvas id="pie"></canvas>
     </div>
   </div>
 
-  <!-- BAWAH -->
+  <!-- BAGIAN BAWAH -->
   <div class="grid-bottom">
     <div class="card">
-      <div>Stok Menipis</div>
-      <div class="chart">Daftar Barang</div>
+      <div class="card-title">Stok Menipis</div>
+
+      <?php if($q6->num_rows > 0): ?>
+        <?php while($s = $q6->fetch_assoc()): ?>
+          <div><?= $s['nama'] ?> (<?= $s['stok'] ?>)</div>
+        <?php endwhile; ?>
+      <?php else: ?>
+        <div>Semua aman</div>
+      <?php endif; ?>
+
     </div>
 
     <div class="card">
-      <div>Aktivitas Terakhir</div>
-      <div class="chart">Riwayat Aktivitas</div>
+      <div class="card-title">Aktivitas Terakhir</div>
+
+      <?php while($a = $q7->fetch_assoc()): ?>
+        <div>
+          <?= $a['tanggal'] ?> - Rp <?= number_format($a['total']) ?>
+        </div>
+      <?php endwhile; ?>
+
     </div>
   </div>
 
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+// LINE CHART
+new Chart(document.getElementById('grafik'), {
+    type: 'line',
+    data: {
+        labels: <?= json_encode($tanggal) ?>,
+        datasets: [{
+            label: 'Penjualan',
+            data: <?= json_encode($total) ?>,
+            borderWidth: 2
+        }]
+    }
+});
+
+// PIE CHART
+new Chart(document.getElementById('pie'), {
+    type: 'pie',
+    data: {
+        labels: <?= json_encode($labelMetode) ?>,
+        datasets: [{
+            data: <?= json_encode($dataMetode) ?>
+        }]
+    }
+});
+</script>
 
 </body>
 </html>
