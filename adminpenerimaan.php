@@ -7,9 +7,12 @@ if (!isset($_SESSION['role'])) {
     exit;
 }
 
+// AKTIFKAN ERROR MYSQLI JADI EXCEPTION
+mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
+
 $conn = new mysqli("localhost", "root", "", "warung");
 
-// SIMPAN DATA
+// ================== SIMPAN DATA ==================
 if (isset($_POST['simpan'])) {
 
     $supplier = $_POST['supplier'];
@@ -18,26 +21,66 @@ if (isset($_POST['simpan'])) {
     $tanggal  = $_POST['tanggal'];
     $total    = $_POST['total'];
 
-    $conn->query("INSERT INTO penerimaan (supplier,jenis,invoice,tanggal,total)
-                  VALUES ('$supplier','$jenis','$invoice','$tanggal','$total')");
+    try {
 
-    $penerimaan_id = $conn->insert_id;
+        // MULAI TRANSACTION
+        $conn->begin_transaction();
 
-    foreach ($_POST['barang'] as $i => $barang_id) {
-        $jumlah = $_POST['jumlah'][$i];
-        $harga  = $_POST['harga'][$i];
-        $subtotal = $jumlah * $harga;
+        // INSERT HEADER PENERIMAAN
+        $stmt = $conn->prepare("
+            INSERT INTO penerimaan (supplier, jenis, invoice, tanggal, total)
+            VALUES (?, ?, ?, ?, ?)
+        ");
+        $stmt->bind_param("ssssi", $supplier, $jenis, $invoice, $tanggal, $total);
+        $stmt->execute();
 
-        $conn->query("INSERT INTO detail_penerimaan 
-        (penerimaan_id,barang_id,jumlah,harga,subtotal)
-        VALUES ('$penerimaan_id','$barang_id','$jumlah','$harga','$subtotal')");
+        $penerimaan_id = $conn->insert_id;
+
+        // LOOP DETAIL
+        foreach ($_POST['barang'] as $i => $barang_id) {
+
+            $jumlah = $_POST['jumlah'][$i];
+            $harga  = $_POST['harga'][$i];
+            $subtotal = $jumlah * $harga;
+
+            // VALIDASI
+            if ($jumlah <= 0 || $harga <= 0) {
+                throw new Exception("Jumlah dan harga harus lebih dari 0");
+            }
+
+            // INSERT DETAIL
+            $stmt2 = $conn->prepare("
+                INSERT INTO detail_penerimaan
+                (penerimaan_id, barang_id, jumlah, harga, subtotal)
+                VALUES (?, ?, ?, ?, ?)
+            ");
+            $stmt2->bind_param("iiiii", $penerimaan_id, $barang_id, $jumlah, $harga, $subtotal);
+            $stmt2->execute();
+
+            // UPDATE STOK (DITAMBAH)
+            $stmt3 = $conn->prepare("
+                UPDATE barang SET stok = stok + ? WHERE id = ?
+            ");
+            $stmt3->bind_param("ii", $jumlah, $barang_id);
+            $stmt3->execute();
+        }
+
+        // JIKA BERHASIL
+        $conn->commit();
+
+        header("Location: " . $_SERVER['PHP_SELF']);
+        exit;
+
+    } catch (Exception $e) {
+
+        // JIKA ERROR
+        $conn->rollback();
+
+        echo "<script>alert('Gagal simpan: " . $e->getMessage() . "');</script>";
     }
-
-    header("Location: " . $_SERVER['PHP_SELF']);
-exit;
 }
 
-// AMBIL DATA BARANG
+// ================== AMBIL DATA BARANG ==================
 $barang = $conn->query("SELECT * FROM barang");
 ?>
 

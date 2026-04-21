@@ -2,32 +2,69 @@
 session_start();
 $conn = new mysqli("localhost", "root", "", "warung");
 
-// SIMPAN TRANSAKSI
+// ================== SIMPAN TRANSAKSI ==================
 if (isset($_POST['bayar'])) {
 
     $metode = $_POST['metode'];
-    $total  = $_POST['total'];
+    $total  = (int)$_POST['total'];
 
-    $conn->query("INSERT INTO penjualan (tanggal,total,metode)
-                  VALUES (NOW(),'$total','$metode')");
+    //mulai transaction
+    $conn->begin_transaction();
 
-    $id = $conn->insert_id;
+    try {
 
-    foreach ($_POST['barang'] as $i => $barang_id) {
-        $jumlah = $_POST['jumlah'][$i];
-        $harga  = $_POST['harga'][$i];
-        $diskon = $_POST['diskon'][$i];
-        $subtotal = ($jumlah * $harga) - $diskon;
+        // 1. simpan penjualan
+        $conn->query("INSERT INTO penjualan (tanggal,total,metode)
+                      VALUES (NOW(),'$total','$metode')");
 
-        $conn->query("INSERT INTO detail_penjualan
-        (penjualan_id,barang_id,jumlah,harga,diskon,subtotal)
-        VALUES ('$id','$barang_id','$jumlah','$harga','$diskon','$subtotal')");
+        $id = $conn->insert_id;
+
+        // 2. loop detail
+        foreach ($_POST['barang'] as $i => $barang_id) {
+
+            $jumlah = (int)$_POST['jumlah'][$i];
+            $harga  = (int)$_POST['harga'][$i];
+            $diskon = (int)$_POST['diskon'][$i];
+
+            if ($jumlah <= 0 || $harga <= 0) continue;
+
+            //cek stok dulu
+            $cek = $conn->query("SELECT stok FROM barang WHERE id='$barang_id'");
+            $data = $cek->fetch_assoc();
+
+            if ($data['stok'] < $jumlah) {
+                throw new Exception("Stok tidak cukup!");
+            }
+
+            $subtotal = ($jumlah * $harga) - $diskon;
+
+            // insert detail
+            $conn->query("INSERT INTO detail_penjualan
+            (penjualan_id,barang_id,jumlah,harga,diskon,subtotal)
+            VALUES ('$id','$barang_id','$jumlah','$harga','$diskon','$subtotal')");
+
+            // update stok
+            $conn->query("UPDATE barang
+            SET stok = stok - $jumlah
+            WHERE id='$barang_id'");
+        }
+
+        // ✅ semua berhasil
+            $conn->commit();
+
+        // pindah ke halaman struk
+            header("Location: struk.php?id=".$id);
+            exit;
+
+    } catch (Exception $e) {
+
+        //gagal -> rollback
+        $conn->rollback();
+        echo "<script>alert('".$e->getMessage()."');</script>";
     }
-
-    header("Location: kasirpenjualan.php?struk=" . $id);
-exit;
 }
 
+// ================== AMBIL DATA ==================
 $barang = $conn->query("SELECT * FROM barang");
 
 $struk = null;
@@ -133,7 +170,7 @@ input,select{padding:6px;margin:5px;}
 
         <div class="menu">
             <a href="kasirdashboard.php">Dashboard</a>
-            <a href="#">Penjualan</a>
+            <a href="kasirpenjualan.php">Penjualan</a>
             <a href="kasirtutup.php">Tutup Kasir</a>
         </div>
     </div>
@@ -144,6 +181,7 @@ input,select{padding:6px;margin:5px;}
 </div>
 
 
+<!--MAIN-->
 <div class="main">
 
 <h2>Penjualan</h2>
@@ -227,7 +265,7 @@ document.getElementById("total").value=total;
 }
 </script>
 
-
+<!--STRUK-->
 <?php if($struk): ?>
 <div id="struk" style="display:none;">
     <div style="width:250px; font-family:monospace;">
@@ -253,20 +291,22 @@ document.getElementById("total").value=total;
         Metode: <?= $struk['metode'] ?>
 
         <hr>
-        <p style="text-align:center;">Terima Kasih 🙏</p>
+        <p style="text-align:center;">Terima Kasih</p>
     </div>
 </div>
-<?php endif; ?>
-
-<?php if($struk): ?>
 <script>
 window.onload = function() {
     let isi = document.getElementById("struk").innerHTML;
 
-    let win = window.open('', '', 'width=300,height=600');
-    win.document.write(isi);
+    let win = window.open('', '_blank');
+    win.document.write(`
+        <html>
+        <body onload="window.print();window.close();">
+        ${isi}
+        </body>
+        </html>
+    `);
     win.document.close();
-    win.print();
 }
 </script>
 <?php endif; ?>

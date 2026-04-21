@@ -1,14 +1,71 @@
 <?php
 session_start();
+
+// CEK LOGIN + ROLE
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'Admin') {
-    header('Location: index.php'); exit;
+    header('Location: index.php');
+    exit;
 }
+
+// NAMA AKUN (ambil dari session kalau ada)
+$namaAkun = $_SESSION['nama'] ?? "Admin";
+
+// KONEKSI DB
+$conn = new mysqli("localhost","root","","warung");
+
+// ================== DATA DASHBOARD ==================
+// 1. transaksi hari ini
+$transaksi = $conn->query("
+    SELECT COUNT(*) as jumlah
+    FROM penjualan
+    WHERE DATE(tanggal) = CURDATE()
+")->fetch_assoc();
+
+// 2. stok menipis
+$stokMenipis = $conn->query("
+    SELECT * FROM barang
+    WHERE stok < 5
+");
+
+// 3. ringkasan barang
+$summary = $conn->query("
+    SELECT 
+        COUNT(*) as total_barang,
+        SUM(stok) as total_stok
+    FROM barang
+")->fetch_assoc();
+
+
+$today = date("Y-m-d");
+
+// total penjualan hari ini
+$penjualan = $conn->query("
+    SELECT 
+        SUM(total) as total,
+        COUNT(*) as jumlah
+    FROM penjualan
+    WHERE DATE(tanggal) = '$today'
+")->fetch_assoc();
+
+// produk terlaris
+$laris = $conn->query("
+    SELECT b.nama, SUM(d.jumlah) as terjual
+    FROM detail_penjualan d
+    JOIN barang b ON d.barang_id = b.id
+    GROUP BY d.barang_id
+    ORDER BY terjual DESC
+    LIMIT 1
+")->fetch_assoc();
+
+// stok menipis
+$stok = $conn->query("
+    SELECT COUNT(*) as jumlah 
+    FROM barang 
+    WHERE stok <= 5
+")->fetch_assoc();
 ?>
 
-<?php
-// contoh data dinamis (nanti bisa dari database)
-$namaAkun = "Admin";
-?>
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -189,24 +246,39 @@ body {
     <div class="grid">
         <div class="card">
             <div class="card-title">Grafik Penjualan Harian</div>
-            <div class="placeholder"></div>
+            <div class="card" style="margin-top:20px;">
+    <h3>Grafik Penjualan Harian</h3>
+    <canvas id="grafik"></canvas>
+</div>
         </div>
 
         <div class="card">
-            <div class="card-title">Ringkasan Stok Barang</div>
-            <div class="placeholder"></div>
+            <div class="card-title">Jumlah Transaksi Hari ini</div>
+            <b><?= $transaksi['jumlah'] ?></b>
         </div>
     </div>
 
     <div class="grid-bottom">
         <div class="card">
             <div class="card-title">Stok Menipis</div>
-            <div class="placeholder"></div>
+            Stok Menipis<br><br>
+
+        <?php if($stokMenipis->num_rows > 0): ?>
+            <?php while($s = $stokMenipis->fetch_assoc()): ?>
+                <div><?= $s['nama'] ?> (<?= $s['stok'] ?>)</div>
+            <?php endwhile; ?>
+        <?php else: ?>
+            <div>Semua aman 👍</div>
+        <?php endif; ?>
         </div>
 
         <div class="card">
             <div class="card-title">Ringkasan Stok Barang</div>
-            <div class="placeholder"></div>
+            Total Barang<br>
+        <b><?= $stok['total_barang'] ?></b><br><br>
+
+        Total Stok<br>
+        <b><?= $stok['total_stok'] ?></b>
         </div>
     </div>
 </div>

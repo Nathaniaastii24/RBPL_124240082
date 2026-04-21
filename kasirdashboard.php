@@ -9,6 +9,7 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'Kasir') {
 // kasirdashboard.php
 $namaAkun = "Nama Akun"; // nanti bisa diganti dari session login
 ?>
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -246,7 +247,7 @@ body {
 
     <div class="top-header">
         <div class="welcome">
-            Selamat Datang, <?php echo $namaAkun; ?>
+            Selamat Datang, Kurnia Fika <!--<?php echo $namaAkun; ?>-->
         </div>
         <div class="icons">
             🔔 ⋮

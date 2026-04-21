@@ -204,7 +204,7 @@ body {
         <div class="menu">
             <a href="admindashboard.php">Dashboard</a>
             <a href="#">Laporan</a>
-            <a href="#">Barang</a>
+            <a href="adminkelolabarang.php">Barang</a>
             <a href="#">Penerimaan</a>
             <a href="#">Supplier</a>
         </div>
