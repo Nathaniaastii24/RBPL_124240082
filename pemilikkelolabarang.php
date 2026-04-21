@@ -139,15 +139,15 @@ input {padding:8px; margin:5px;}
 
         <div class="profile">
     <img src="asset/logohijau.png" class="profile-img">
-    <div>Vina Delvina</div>
+    <div>Arsita Dewi</div>
 </div>
 
         <div class="menu">
-            <a href="admindashboard.php">Dashboard</a>
-            <a href="#">Kelola Barang</a>
-            <a href="adminpenerimaan.php">Input Penerimaan</a>
-            <a href="adminpo.php">Purchase Order</a>
-            <a href="adminlaporan.php">Laporan</a>
+            <a href="pemilikdashboard.php">Dashboard</a>
+            <a href="pemiliklaporan.php">Laporan</a>
+            <a href="pemilikkelolabarang.php">Barang</a>
+            <a href="pemilikpenerimaan.php">Penerimaan</a>
+            <a href="pemiliksupplier.php">Supplier</a>
         </div>
     </div>
 

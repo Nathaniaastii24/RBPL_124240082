@@ -1,7 +1,7 @@
 <?php
 session_start();
 if (isset($_SESSION['role'])) {
-    header('Location: dashboardpemilik.php'); exit;
+    header('Location: pemilikdashboard.php'); exit;
 }
 $error = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -16,7 +16,7 @@ if ($user && $password === $user['password']) {
     $_SESSION['role']     = 'Pemilik';
     $_SESSION['username'] = $user['email'];
     $_SESSION['id']       = $user['id'];
-    header('Location: dashboardpemilik.php'); exit;
+    header('Location: pemilikdashboard.php'); exit;
 } else {
     $error = 'Email atau password salah.';
 }

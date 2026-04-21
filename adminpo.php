@@ -138,7 +138,7 @@ body {display:flex; background:#F7F3EE; font-family:Segoe UI;}
             <a href="adminkelolabarang.php">Kelola Barang</a>
             <a href="adminpenerimaan.php">Input Penerimaan</a>
             <a href="adminpo.php">Purchase Order</a>
-            <a href="#">Laporan</a>
+            <a href="adminlaporan.php">Laporan</a>
         </div>
     </div>
 

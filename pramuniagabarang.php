@@ -1,19 +1,79 @@
 <?php
 session_start();
-if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'Pramuniaga') {
-    header('Location: index.php'); exit;
+
+// CEK ROLE PRAMUNIAGA
+if (!isset($_SESSION['role']) || strtolower($_SESSION['role']) !== 'pramuniaga') {
+    header("Location: login.php");
+    exit;
 }
 
-$namaAkun = "Pramuniaga";
+$conn = new mysqli("localhost", "root", "", "warung");
+
+// QUERY SEMUA BARANG
+$barang = $conn->query("SELECT * FROM barang");
 ?>
 
 <!DOCTYPE html>
-<html lang="id">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>Dashboard - Warung Mbak Eni</title>
-    <style>
-        * {
+<title>Daftar Barang</title>
+
+<style>
+body{
+    display:flex;
+    font-family:Segoe UI;
+    background:#F7F3EE;
+}
+
+.sidebar{
+    width:240px;
+    background:#FFF8E1;
+    padding:20px;
+}
+
+.menu a{
+    display:block;
+    padding:10px;
+    text-decoration:none;
+    color:#333;
+}
+
+.menu a:hover{
+    background:#C8E6C9;
+}
+
+.main{
+    flex:1;
+    padding:30px;
+}
+
+.card{
+    background:#fff;
+    padding:20px;
+    border-radius:12px;
+    margin-bottom:20px;
+}
+
+.table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+.table th, .table td{
+    padding:10px;
+    border-bottom:1px solid #eee;
+}
+
+.btn{
+    padding:6px 12px;
+    background:#2E7D32;
+    color:white;
+    border:none;
+    border-radius:6px;
+    cursor:pointer;
+}
+
+ * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
@@ -147,6 +207,7 @@ $namaAkun = "Pramuniaga";
 }
 </style>
 </head>
+
 <body>
 
 <!--SIDEBAR-->
@@ -169,45 +230,59 @@ $namaAkun = "Pramuniaga";
         <a href="logout.php">Logout</a>
     </div>
 </div>
+<!-- MAIN -->
+<div class="main">
 
-    <!-- ===== MAIN ===== -->
-    <div class="main">
-        <div class="header">
-            Selamat Datang, <?= $namaAkun; ?>
-        </div>
+<h2>Daftar Barang</h2>
 
-        <!-- GRID ATAS -->
-        <div class="grid">
-            <div class="card">
-                <h4>Informasi Stok Barang</h4>
-                <div class="card-content"></div>
-            </div>
+<div class="card">
+    <table class="table">
+        <tr>
+            <th>Nama Barang</th>
+            <th>Harga</th>
+            <th>Stok</th>
+            <th>Aksi</th>
+        </tr>
 
-            <div class="card">
-                <h4>Status Inventaris Cepat</h4>
-                <div class="card-content"></div>
-            </div>
-        </div>
+        <?php while($b = $barang->fetch_assoc()): ?>
+        <tr>
+            <td><?= $b['nama'] ?></td>
+            <td>Rp <?= number_format($b['harga']) ?></td>
+            <td><?= $b['stok'] ?></td>
+            <td>
+                <button class="btn"
+                onclick="printLabel('<?= $b['nama'] ?>','<?= number_format($b['harga']) ?>')">
+                Print Label
+                </button>
+            </td>
+        </tr>
+        <?php endwhile; ?>
+    </table>
+</div>
 
-        <!-- GRID BAWAH -->
-        <div class="grid-bottom">
-            <div class="card">
-                <h4>Notifikasi Barang Masuk Hari ini</h4>
-                <div class="card-content" style="height: 220px;"></div>
-            </div>
+</div>
 
-            <div class="card">
-                <h4>Stok Menipis</h4>
-                <div class="card-content"></div>
-            </div>
+<script>
+function printLabel(nama, harga){
 
-            <div class="card card-large">
-                <h4>Tren Penjualan</h4>
-                <div class="card-content"></div>
-            </div>
-        </div>
-
+    let isi = `
+    <div style="width:200px; text-align:center; font-family:Arial; border:1px solid #000; padding:10px;">
+        <h3>${nama}</h3>
+        <h2>Rp ${harga}</h2>
     </div>
+    `;
+
+    let win = window.open('', '_blank');
+    win.document.write(`
+        <html>
+        <body onload="window.print();window.close();">
+        ${isi}
+        </body>
+        </html>
+    `);
+    win.document.close();
+}
+</script>
 
 </body>
 </html>

@@ -202,11 +202,11 @@ body {
 </div>
 
         <div class="menu">
-            <a href="admindashboard.php">Dashboard</a>
-            <a href="#">Laporan</a>
-            <a href="adminkelolabarang.php">Barang</a>
-            <a href="#">Penerimaan</a>
-            <a href="#">Supplier</a>
+            <a href="pemilikdashboard.php">Dashboard</a>
+            <a href="pemiliklaporan.php">Laporan</a>
+            <a href="pemilikkelolabarang.php">Barang</a>
+            <a href="pemilikpenerimaan.php">Penerimaan</a>
+            <a href="pemiliksupplier.php">Supplier</a>
         </div>
     </div>
 

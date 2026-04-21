@@ -181,7 +181,7 @@ input, select {padding:8px; margin:5px; width:100%;}
             <a href="adminkelolabarang.php">Kelola Barang</a>
             <a href="adminpenerimaan.php">Input Penerimaan</a>
             <a href="adminpo.php">Purchase Order</a>
-            <a href="#">Laporan</a>
+            <a href="adminlaporan.php">Laporan</a>
         </div>
     </div>
 
