@@ -87,6 +87,12 @@ body{
         }
 
         /* ===== SIDEBAR ===== */
+.menu a.active {
+    background: #C8E6C9;
+    color: #1A1A1A;
+    font-weight: bold;
+}
+
 .sidebar {
     width: 240px;
     height: 100vh;
@@ -222,7 +228,7 @@ body{
 
         <div class="menu">
             <a href="pramuniagadashboard.php">Dashboard</a>
-            <a href="pramuniagabarang.php">Barang</a>
+            <a href="pramuniagabarang.php" class="active">Barang</a>
         </div>
     </div>
 

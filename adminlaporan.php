@@ -40,6 +40,12 @@ body {
 }
 
 /* ===== SIDEBAR ===== */
+.menu a.active {
+    background: #C8E6C9;
+    color: #1A1A1A;
+    font-weight: bold;
+}
+
 .sidebar {
     width: 240px;
     height: 100vh;
@@ -239,7 +245,7 @@ body{
             <a href="adminkelolabarang.php">Kelola Barang</a>
             <a href="adminpenerimaan.php">Input Penerimaan</a>
             <a href="adminpo.php">Purchase Order</a>
-            <a href="adminlaporan.php">Laporan</a>
+            <a href="adminlaporan.php" class="active">Laporan</a>
         </div>
     </div>
 

@@ -90,6 +90,12 @@ if (isset($_GET['struk'])) {
 <title>Kasir</title>
 <style>
     /* ===== SIDEBAR ===== */
+.menu a.active {
+    background: #C8E6C9;
+    color: #1A1A1A;
+    font-weight: bold;
+}
+
 .sidebar {
     width: 240px;
     height: 100vh;
@@ -170,7 +176,7 @@ input,select{padding:6px;margin:5px;}
 
         <div class="menu">
             <a href="kasirdashboard.php">Dashboard</a>
-            <a href="kasirpenjualan.php">Penjualan</a>
+            <a href="kasirpenjualan.php" class="active">Penjualan</a>
             <a href="kasirtutup.php">Tutup Kasir</a>
         </div>
     </div>

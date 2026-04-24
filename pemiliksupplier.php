@@ -152,6 +152,12 @@ body {
 }
 
 /* SIDEBAR */
+.menu a.active {
+    background: #C8E6C9;
+    color: #1A1A1A;
+    font-weight: bold;
+}
+
 .sidebar {
   width: 240px;
   background: var(--sidebar);
@@ -311,7 +317,7 @@ body {
             <a href="pemiliklaporan.php">Laporan</a>
             <a href="pemilikkelolabarang.php">Barang</a>
             <a href="pemilikpenerimaan.php">Penerimaan</a>
-            <a href="pemiliksupplier.php">Supplier</a>
+            <a href="pemiliksupplier.php" class="active">Supplier</a>
         </div>
     </div>
 

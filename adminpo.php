@@ -49,6 +49,12 @@ $dataPO = $conn->query("SELECT * FROM po ORDER BY id DESC");
 
 <style>
 /* ===== SIDEBAR ===== */
+.menu a.active {
+    background: #C8E6C9;
+    color: #1A1A1A;
+    font-weight: bold;
+}
+
 .sidebar {
     width: 240px;
     height: 100vh;
@@ -137,7 +143,7 @@ body {display:flex; background:#F7F3EE; font-family:Segoe UI;}
             <a href="admindashboard.php">Dashboard</a>
             <a href="adminkelolabarang.php">Kelola Barang</a>
             <a href="adminpenerimaan.php">Input Penerimaan</a>
-            <a href="adminpo.php">Purchase Order</a>
+            <a href="adminpo.php" class="active">Purchase Order</a>
             <a href="adminlaporan.php">Laporan</a>
         </div>
     </div>

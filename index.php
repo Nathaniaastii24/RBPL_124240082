@@ -48,7 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['role'])) {
                 <div class="role-name">Pemilik</div>
                 <div class="role-desc">Akses penuh ke semua fitur</div>
             </div>
-            <span class="role-arrow">→</span>
+            <span class="role-arrow"></span>
         </button>
 
         <button onclick="window.location.href='loginadmin.php'" class="role-btn">
@@ -56,7 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['role'])) {
                 <div class="role-name">Admin</div>
                 <div class="role-desc">Kelola data & laoran</div>
             </div>
-            <span class="role-arrow">→</span>
+            <span class="role-arrow"></span>
         </button>
 
         <button onclick="window.location.href='loginkasir.php'" class="role-btn">
@@ -64,7 +64,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['role'])) {
                 <div class="role-name">Kasir</div>
                 <div class="role-desc">Transaksi & pembayaran</div>
             </div>
-            <span class="role-arrow">→</span>
+            <span class="role-arrow"></span>
         </button>
 
         <button onclick="window.location.href='loginpramuniaga.php'" class="role-btn">
@@ -72,7 +72,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['role'])) {
                 <div class="role-name">Pramuniaga</div>
                 <div class="role-desc">Pelayanan pelanggan</div>
             </div>
-            <span class="role-arrow">→</span>
         </button>
     </div>
 </div>

@@ -58,6 +58,12 @@ $data = $conn->query("SELECT * FROM barang");
 
 <style>
     /* ===== SIDEBAR ===== */
+.menu a.active {
+    background: #C8E6C9;
+    color: #1A1A1A;
+    font-weight: bold;
+}
+
 .sidebar {
     width: 240px;
     height: 100vh;
@@ -145,7 +151,7 @@ input {padding:8px; margin:5px;}
         <div class="menu">
             <a href="pemilikdashboard.php">Dashboard</a>
             <a href="pemiliklaporan.php">Laporan</a>
-            <a href="pemilikkelolabarang.php">Barang</a>
+            <a href="pemilikkelolabarang.php" class="active">Barang</a>
             <a href="pemilikpenerimaan.php">Penerimaan</a>
             <a href="pemiliksupplier.php">Supplier</a>
         </div>

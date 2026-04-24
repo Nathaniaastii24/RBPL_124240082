@@ -59,6 +59,12 @@ body {
 }
 
     /* ===== SIDEBAR ===== */
+.menu a.active {
+    background: #C8E6C9;
+    color: #1A1A1A;
+    font-weight: bold;
+}
+
 .sidebar {
     width: 240px;
     height: 100vh;
@@ -371,7 +377,7 @@ body {
         <div class="menu">
             <a href="kasirdashboard.php">Dashboard</a>
             <a href="kasirpenjualan.php">Penjualan</a>
-            <a href="kasirtutup.php">Tutup Kasir</a>
+            <a href="kasirtutup.php" class="active">Tutup Kasir</a>
         </div>
     </div>
 

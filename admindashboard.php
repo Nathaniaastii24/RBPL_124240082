@@ -79,6 +79,12 @@ body {background:#F7F3EE;display:flex;}
     justify-content:space-between;
 }
 
+.menu a.active {
+    background: #C8E6C9;
+    color: #1A1A1A;
+    font-weight: bold;
+}
+
 .logo {font-size:22px;font-weight:bold;margin-bottom:20px;}
 
 .profile {display:flex;align-items:center;margin-bottom:25px;}
@@ -140,12 +146,12 @@ body {background:#F7F3EE;display:flex;}
         </div>
 
         <div class="menu">
-            <a href="admindashboard.php">Dashboard</a>
-            <a href="adminkelolabarang.php">Kelola Barang</a>
-            <a href="adminpenerimaan.php">Input Penerimaan</a>
-            <a href="adminpo.php">Purchase Order</a>
-            <a href="adminlaporan.php">Laporan</a>
-        </div>
+    <a href="admindashboard.php" class="active">Dashboard</a>
+    <a href="adminkelolabarang.php">Kelola Barang</a>
+    <a href="adminpenerimaan.php">Input Penerimaan</a>
+    <a href="adminpo.php">Purchase Order</a>
+    <a href="adminlaporan.php">Laporan</a>
+</div>
     </div>
 
     <a href="logout.php">Logout</a>
@@ -185,7 +191,7 @@ body {background:#F7F3EE;display:flex;}
                 <div><?= $s['nama'] ?> (<?= $s['stok'] ?>)</div>
             <?php endwhile; ?>
         <?php else: ?>
-            <div>Semua aman 👍</div>
+            <div>Semua aman</div>
         <?php endif; ?>
     </div>
 
